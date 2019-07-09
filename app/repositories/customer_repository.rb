@@ -1,31 +1,31 @@
 require 'pry-byebug'
 require 'csv'
-require_relative '../models/meal'
+require_relative '../models/customer'
 
-class MealRepository
+class CustomerRepository
   def initialize(filepath)
     @csv_file_path = filepath
-    @meals = []
+    @customers = []
     @new_id = 1 #always store the first id in the csv as 1
 
     load_csv if File.exist? filepath
   end
 
   def all
-    return @meals
+    return @customers
   end
 
-  def add(new_meal) # new_meal ==> Meal instance
-    new_meal.id = @new_id
-    @meals << new_meal
+  def add(new_customer) # new_customer ==> Customer instance
+    new_customer.id = @new_id
+    @customers << new_customer
     write_to_csv
     @new_id += 1
   end
 
   def find(search_id)
     # condition = search_id == the id of the meal
-    @meals.find do |meal|
-      meal.id == search_id
+    @customers.find do |customer|
+      customer.id == search_id
     end
   end
 
@@ -37,26 +37,24 @@ class MealRepository
     CSV.foreach(@csv_file_path, csv_options) do |row|
       # convert id and price because it's not suppose to be a string
       row[:id] = row[:id].to_i
-      row[:price] = row[:price].to_i
-
-      @meals << Meal.new(row)
+      @customers << Customer.new(row)
     end
 
-    @new_id = @meals.last.id + 1
+    @new_id = @customers.last.id + 1
   end
 
   def write_to_csv
     csv_options = { col_sep: ',' }
 
     CSV.open(@csv_file_path, 'wb', csv_options) do |csv|
-      csv << ['id','name','price']
-      @meals.each do |meal|
+      csv << ['id','name','address']
+      @customers.each do |customer|
         # creating the row for my csv
-        id = meal.id
-        name = meal.name
-        price = meal.price
+        id = customer.id
+        name = customer.name
+        address = customer.address
 
-        csv << [id, name, price]
+        csv << [id, name, address]
       end
     end
   end
